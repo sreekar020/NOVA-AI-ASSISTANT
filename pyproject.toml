@@ -1,0 +1,10 @@
+[project]
+name = "nova"
+version = "0.1.0"
+description = "Nova - Multilingual AI Assistant with Telugu & English support"
+authors = [{ name = "Your Name", email = "your@email.com" }]
+license = { text = "AGPL-3.0" }
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

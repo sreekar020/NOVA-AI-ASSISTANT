@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feedback</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    canvas#neuralBg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      background-color: #0f172a;
+      filter: blur(0.5px);
+    }
+
+    .navbar {
+      background-color: transparent;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 30;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      font-weight: 500;
+      color: #ffffff;
+    }
+
+    .feedback-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      color: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      margin: 100px auto;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      resize: vertical;
+      margin-bottom: 1rem;
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+    }
+
+    .submit-btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    .submit-btn:hover {
+      background-color: #2563eb;
+    }
+
+    .stars {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .star {
+      font-size: 2rem;
+      color: #444;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .star.selected,
+    .star:hover,
+    .star:hover ~ .star {
+      color: #facc15;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas Background -->
+  <canvas id="neuralBg"></canvas>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="text-2xl font-bold" style="color: hsl(129, 41%, 97%);">Nova</div>
+    <div class="flex space-x-4">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="feedback.html" class="nav-link">Feedback</a>
+      <a href="#" class="nav-link">About</a>
+    </div>
+  </nav>
+
+  <!-- Feedback Card -->
+  <div class="feedback-card">
+    <h2 class="text-xl mb-4 font-semibold">We'd love your feedback!</h2>
+    <textarea id="feedbackText" rows="5" placeholder="Type your feedback here..."></textarea>
+    <button class="submit-btn" onclick="submitFeedback()">Submit</button>
+    <div class="stars" id="starContainer">
+      <span class="star" data-rating="1">&#9733;</span>
+      <span class="star" data-rating="2">&#9733;</span>
+      <span class="star" data-rating="3">&#9733;</span>
+      <span class="star" data-rating="4">&#9733;</span>
+      <span class="star" data-rating="5">&#9733;</span>
+    </div>
+  </div>
+
+  <script>
+    // Background animation
+    const canvas = document.getElementById('neuralBg');
+    const ctx = canvas.getContext('2d');
+    let nodes = [];
+    const numNodes = 60;
+    const maxDist = 150;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < numNodes; i++) {
+      nodes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        radius: 1 + Math.random() * 1.5
+      });
+    }
+
+    function drawNetwork() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < numNodes; i++) {
+        const a = nodes[i];
+        a.x += a.vx;
+        a.y += a.vy;
+        if (a.x < 0 || a.x > canvas.width) a.vx *= -1;
+        if (a.y < 0 || a.y > canvas.height) a.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(96, 165, 250, 0.6)';
+        ctx.fill();
+        for (let j = i + 1; j < numNodes; j++) {
+          const b = nodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxDist) {
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `rgba(96, 165, 250, ${1 - dist / maxDist})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawNetwork);
+    }
+    drawNetwork();
+
+    // Star rating logic
+    const stars = document.querySelectorAll('.star');
+    let selectedRating = 0;
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.rating);
+        stars.forEach(s => s.classList.remove('selected'));
+        for (let i = 0; i < selectedRating; i++) {
+          stars[i].classList.add('selected');
+        }
+      });
+    });
+
+    // Submit feedback
+function submitFeedback() {
+  const feedbackText = document.getElementById('feedbackText').value.trim();
+
+  if (!feedbackText || selectedRating === 0) {
+    alert("Please enter feedback and select a rating.");
+    return;
+  }
+
+  fetch('http://localhost:5000/submit-feedback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      message: feedbackText,
+      stars: selectedRating
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert(data.message);
+    if (data.status === 'success') {
+      document.getElementById('feedbackText').value = '';
+      selectedRating = 0;
+      stars.forEach(s => s.classList.remove('selected'));
+    }
+  })
+  .catch(error => {
+    console.error("Error submitting feedback:", error);
+    alert("An error occurred while submitting feedback.");
+  });
+}
+
+</script>
+
+
+</body>
+</html>
