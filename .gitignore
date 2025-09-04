@@ -1,0 +1,36 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+
+# Flask
+instance/
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dependency / build artifacts
+*.egg-info/
+dist/
+build/
+uv.lock
